@@ -1,7 +1,7 @@
 import { Input } from "../components/Input";
 import { Select } from "../components/Select";
 import { CATEGORIES, CATEGORIES_KEYS } from "../utils/categories";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Upload } from "../components/Upload";
 import { Button } from "../components/Button";
 import { useNavigate, useParams } from "react-router";
@@ -9,6 +9,7 @@ import fileSvg from "../assets/file.svg";
 import { ZodError, z } from "zod";
 import { api } from "../services/api";
 import { AxiosError } from "axios";
+import { formatCurrency } from "../utils/formatCurrency";
 
 const refundSchema = z.object({
   name: z
@@ -26,6 +27,7 @@ export function Refund() {
   const [category, setCategory] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [fileURL, setFileURL] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const params = useParams<{ id: string }>();
@@ -70,6 +72,28 @@ export function Refund() {
       setIsLoading(false);
     }
   }
+
+  async function fetchRefund(id: string) {
+    try {
+      const res = await api.get<RefundAPIResponse>(`/refunds/${id}`);
+
+      setName(res.data.name);
+      setCategory(res.data.category);
+      setAmount(formatCurrency(res.data.amount));
+      setFileURL(res.data.filename);
+    } catch (error) {
+      console.log(error);
+
+      if (error instanceof AxiosError)
+        return alert(error.response?.data.message);
+
+      alert("Não foi possível carregar");
+    }
+  }
+
+  useEffect(() => {
+    if (params.id) fetchRefund(params.id);
+  }, [params.id]);
 
   return (
     <form
@@ -117,9 +141,9 @@ export function Refund() {
         />
       </div>
 
-      {params.id ? (
+      {params.id && fileURL ? (
         <a
-          href="https://google.com"
+          href={`http://localhost:3333/uploads/${fileURL}`}
           target="_blank"
           className="text-sm text-green-100 font-semibold flex items-center justify-center gap-2 my-6 hover:opacity-70 transition ease-linear"
         >
