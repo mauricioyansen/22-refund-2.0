@@ -14,7 +14,7 @@ Siga os passos abaixo para rodar o Refund App na sua máquina:
 
 ### 1. Clonar o Repositório
 ```sh
-git clone https://github.com/seu-usuario/refund-app.git
+git clone https://github.com/mauricioyansen/refund-app.git
 cd refund-app
 ```
 
